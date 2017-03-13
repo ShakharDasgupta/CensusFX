@@ -1,0 +1,13 @@
+#title-text {
+    -fx-font: bold 32px sans-serif;
+    -fx-fill: #818181;
+    -fx-effect: innershadow(three-pass-box, rgba(0, 0, 0, 1), 6, 0.0, 0, 2);
+}
+
+#error-text {
+    -fx-text-fill: #ff0000;
+}
+
+.place-text {
+    -fx-font: bold 16px sans-serif;
+}
