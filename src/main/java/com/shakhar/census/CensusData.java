@@ -69,32 +69,32 @@ public class CensusData {
      */
     public final void fetch() throws IOException {
         String line;
-        String lines = "";
+        StringBuilder lines = new StringBuilder();
         URL statesURL = new URL(STATES_URL);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(statesURL.openStream()))) {
             while ((line = br.readLine()) != null) {
-                lines += line + System.lineSeparator();
+                lines.append(line).append(System.lineSeparator());
             }
         }
-        cache.put(STATES_URL, lines);
+        cache.put(STATES_URL, lines.toString());
 
-        lines = "";
+        lines.setLength(0);
         URL placesURL = new URL(PLACES_URL);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(placesURL.openStream()))) {
             while ((line = br.readLine()) != null) {
-                lines += line + System.lineSeparator();
+                lines.append(line).append(System.lineSeparator());
             }
         }
-        cache.put(PLACES_URL, lines);
+        cache.put(PLACES_URL, lines.toString());
 
-        lines = "";
+        lines.setLength(0);
         URL censusURL = new URL(CENSUS_URL);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(censusURL.openStream()))) {
             while ((line = br.readLine()) != null) {
-                lines += line + System.lineSeparator();
+                lines.append(line).append(System.lineSeparator());
             }
         }
-        cache.put(CENSUS_URL, lines);
+        cache.put(CENSUS_URL, lines.toString());
     }
 
     public final void parse() throws IOException {
