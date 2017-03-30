@@ -16,10 +16,12 @@
  */
 package com.shakhar.census;
 
+import com.shakhar.util.HashCache;
 import com.shakhar.util.MyHashMap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,12 @@ import javax.json.stream.JsonParser;
  */
 public class CensusData {
 
+    private static final String CACHE_FILENAME = "census.cache";
+    private static final String STATES_URL = "http://www2.census.gov/geo/docs/reference/state.txt";
+    private static final String PLACES_URL = "http://www2.census.gov/geo/docs/reference/codes/files/national_places.txt";
+    private static final String CENSUS_URL = "http://api.census.gov/data/2010/sf1?get=P0030001,P0030002,P0030003,P0030004,P0030005,P0030006,P0030007,P0030008&for=place:*";
+
+    private final HashCache<String, String> cache;
     private Map<String, State> states;
     private Map<String, Place> places;
     private Map<String, Population> populations;
@@ -45,7 +53,11 @@ public class CensusData {
      * @throws IOException if there is problem connecting to the Census API
      */
     public CensusData() throws IOException {
-        fetch();
+        cache = new HashCache<>(CACHE_FILENAME);
+        if (cache.isEmpty()) {
+            fetch();
+        }
+        parse();
     }
 
     /**
@@ -56,8 +68,37 @@ public class CensusData {
      * @throws IOException if there is problem connecting to the Census API
      */
     public final void fetch() throws IOException {
-        URL statesURL = new URL("http://www2.census.gov/geo/docs/reference/state.txt");
+        String line;
+        String lines = "";
+        URL statesURL = new URL(STATES_URL);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(statesURL.openStream()))) {
+            while ((line = br.readLine()) != null) {
+                lines += line + System.lineSeparator();
+            }
+        }
+        cache.put(STATES_URL, lines);
+
+        lines = "";
+        URL placesURL = new URL(PLACES_URL);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(placesURL.openStream()))) {
+            while ((line = br.readLine()) != null) {
+                lines += line + System.lineSeparator();
+            }
+        }
+        cache.put(PLACES_URL, lines);
+
+        lines = "";
+        URL censusURL = new URL(CENSUS_URL);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(censusURL.openStream()))) {
+            while ((line = br.readLine()) != null) {
+                lines += line + System.lineSeparator();
+            }
+        }
+        cache.put(CENSUS_URL, lines);
+    }
+
+    public final void parse() throws IOException {
+        try (BufferedReader br = new BufferedReader(new StringReader(cache.get(STATES_URL)))) {
             states = new MyHashMap<>();
             String line;
             br.readLine();
@@ -67,8 +108,7 @@ public class CensusData {
             }
         }
 
-        URL placesURL = new URL("http://www2.census.gov/geo/docs/reference/codes/files/national_places.txt");
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(placesURL.openStream()))) {
+        try (BufferedReader br = new BufferedReader(new StringReader(cache.get(PLACES_URL)))) {
             places = new MyHashMap<>();
             String line;
             br.readLine();
@@ -80,8 +120,7 @@ public class CensusData {
             }
         }
 
-        URL censusURL = new URL("http://api.census.gov/data/2010/sf1?get=P0030001,P0030002,P0030003,P0030004,P0030005,P0030006,P0030007,P0030008&for=place:*");
-        try (JsonParser parser = Json.createParser(censusURL.openStream())) {
+        try (JsonParser parser = Json.createParser(new StringReader(cache.get(CENSUS_URL)))) {
             populations = new MyHashMap<>();
             int c = 0;
             String[] arr = new String[10];
