@@ -36,7 +36,7 @@ public class FileArray<E> {
 
     private static final int POSITION_SIZE = 8;
     private static final int INT_SIZE = 4;
-    private static final int NULL_ADDR = -1;
+    private static final int NULL_ADDR = 0;
 
     private final int length;
     private int count;
@@ -76,10 +76,10 @@ public class FileArray<E> {
             throw new RuntimeException("FileArrayIndexOutOfBoundsException");
         }
         try {
-            if(get(index) == null) {
-            cacheFile.seek(0);
-            cacheFile.writeInt(++count);
-        }
+            if (get(index) == null) {
+                cacheFile.seek(0);
+                cacheFile.writeInt(++count);
+            }
             cacheFile.seek(index * POSITION_SIZE + INT_SIZE);
             if (element != null) {
                 cacheFile.writeLong(objectsPos);
@@ -113,7 +113,7 @@ public class FileArray<E> {
     public int length() {
         return length;
     }
-    
+
     public int count() {
         return count;
     }
