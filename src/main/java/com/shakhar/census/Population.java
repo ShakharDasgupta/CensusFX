@@ -16,13 +16,16 @@
  */
 package com.shakhar.census;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 /**
  * Population profile for a <tt>Place</tt>. The profile contains the population
  * of each racial category defined by the US Census Bureau.
  *
  * @author Shakhar Dasgupta
  */
-public class Population {
+public class Population implements Serializable {
 
     private final Place place;
     private final int totalPopulation;
@@ -162,6 +165,63 @@ public class Population {
     @Override
     public String toString() {
         return "Population{" + "place=" + place + ", totalPopulation=" + totalPopulation + ", whitePopulation=" + whitePopulation + ", blackPopulation=" + blackPopulation + ", americanIndianAndAlaskaNativePopulation=" + americanIndianAndAlaskaNativePopulation + ", asianPopulation=" + asianPopulation + ", nativeHawaiianAndOtherPacificIslanderPopulation=" + nativeHawaiianAndOtherPacificIslanderPopulation + ", otherRacesPopulation=" + otherRacesPopulation + ", multiRacialPopulation=" + multiRacialPopulation + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.place);
+        hash = 97 * hash + this.totalPopulation;
+        hash = 97 * hash + this.whitePopulation;
+        hash = 97 * hash + this.blackPopulation;
+        hash = 97 * hash + this.americanIndianAndAlaskaNativePopulation;
+        hash = 97 * hash + this.asianPopulation;
+        hash = 97 * hash + this.nativeHawaiianAndOtherPacificIslanderPopulation;
+        hash = 97 * hash + this.otherRacesPopulation;
+        hash = 97 * hash + this.multiRacialPopulation;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Population other = (Population) obj;
+        if (this.totalPopulation != other.totalPopulation) {
+            return false;
+        }
+        if (this.whitePopulation != other.whitePopulation) {
+            return false;
+        }
+        if (this.blackPopulation != other.blackPopulation) {
+            return false;
+        }
+        if (this.americanIndianAndAlaskaNativePopulation != other.americanIndianAndAlaskaNativePopulation) {
+            return false;
+        }
+        if (this.asianPopulation != other.asianPopulation) {
+            return false;
+        }
+        if (this.nativeHawaiianAndOtherPacificIslanderPopulation != other.nativeHawaiianAndOtherPacificIslanderPopulation) {
+            return false;
+        }
+        if (this.otherRacesPopulation != other.otherRacesPopulation) {
+            return false;
+        }
+        if (this.multiRacialPopulation != other.multiRacialPopulation) {
+            return false;
+        }
+        if (!Objects.equals(this.place, other.place)) {
+            return false;
+        }
+        return true;
     }
 
 }

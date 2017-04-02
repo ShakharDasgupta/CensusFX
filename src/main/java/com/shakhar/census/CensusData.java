@@ -16,6 +16,7 @@
  */
 package com.shakhar.census;
 
+import com.shakhar.util.BTreeMap;
 import com.shakhar.util.HashCache;
 import com.shakhar.util.MyHashMap;
 import java.io.BufferedReader;
@@ -25,7 +26,6 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.json.Json;
 import javax.json.stream.JsonParser;
 
@@ -37,15 +37,17 @@ import javax.json.stream.JsonParser;
  */
 public class CensusData {
 
-    private static final String CACHE_FILENAME = "census.cache";
+    private static final String CACHE_FILENAME = "cache";
     private static final String STATES_URL = "http://www2.census.gov/geo/docs/reference/state.txt";
     private static final String PLACES_URL = "http://www2.census.gov/geo/docs/reference/codes/files/national_places.txt";
     private static final String CENSUS_URL = "http://api.census.gov/data/2010/sf1?get=P0030001,P0030002,P0030003,P0030004,P0030005,P0030006,P0030007,P0030008&for=place:*";
+    private static final int BTREE_DEGREE = 32;
+    private static final String STATES_BTREE_NAME = "states";
+    private static final String POPULATIONS_BTREE_NAME = "populations";
 
     private final HashCache<String, String> cache;
-    private Map<String, State> states;
-    private Map<String, Place> places;
-    private Map<String, Population> populations;
+    private BTreeMap<String, State> states;
+    private BTreeMap<String, Population> populations;
 
     /**
      * Constructs <tt>CensusData</tt> after fetching data from the Census API.
@@ -57,7 +59,11 @@ public class CensusData {
         if (cache.isEmpty()) {
             fetch();
         }
-        parse();
+        states = new BTreeMap<>(STATES_BTREE_NAME, BTREE_DEGREE);
+        populations = new BTreeMap<>(POPULATIONS_BTREE_NAME, BTREE_DEGREE);
+        if (states.isEmpty() || populations.isEmpty()) {
+            parse();
+        }
     }
 
     /**
@@ -99,7 +105,6 @@ public class CensusData {
 
     public final void parse() throws IOException {
         try (BufferedReader br = new BufferedReader(new StringReader(cache.get(STATES_URL)))) {
-            states = new MyHashMap<>();
             String line;
             br.readLine();
             while ((line = br.readLine()) != null) {
@@ -108,8 +113,8 @@ public class CensusData {
             }
         }
 
+        MyHashMap<String, Place> places = new MyHashMap<>();
         try (BufferedReader br = new BufferedReader(new StringReader(cache.get(PLACES_URL)))) {
-            places = new MyHashMap<>();
             String line;
             br.readLine();
             br.readLine();
@@ -121,7 +126,6 @@ public class CensusData {
         }
 
         try (JsonParser parser = Json.createParser(new StringReader(cache.get(CENSUS_URL)))) {
-            populations = new MyHashMap<>();
             int c = 0;
             String[] arr = new String[10];
             boolean header = true;
@@ -146,17 +150,6 @@ public class CensusData {
                 }
             }
         }
-    }
-
-    /**
-     * Returns a <tt>Map</tt> mapping <tt>Place</tt> names to associated
-     * <tt>Population</tt>s.
-     *
-     * @return a <tt>Map</tt> mapping <tt>Place</tt> names to associated
-     * <tt>Population</tt>s.
-     */
-    public Map<String, Population> getPopulations() {
-        return populations;
     }
 
     /**
@@ -217,7 +210,7 @@ public class CensusData {
         Population similar = null;
         float d;
         for (Population p : populations.values()) {
-            if (p != population && (state == null || p.getPlace().getState().getName().equals(state)) && (d = euclideanDistance(population, p)) < min) {
+            if (!p.equals(population) && (state == null || p.getPlace().getState().getName().equals(state)) && (d = euclideanDistance(population, p)) < min) {
                 min = d;
                 similar = p;
             }

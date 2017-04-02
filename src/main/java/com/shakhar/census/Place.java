@@ -16,12 +16,15 @@
  */
 package com.shakhar.census;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 /**
  * Place defined by the US Census Bureau.
  *
  * @author Shakhar Dasgupta
  */
-public class Place {
+public class Place implements Serializable {
 
     private final State state;
     private final String fipsCode;
@@ -99,6 +102,43 @@ public class Place {
     @Override
     public String toString() {
         return name + ", " + state.getUspsCode();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + Objects.hashCode(this.state);
+        hash = 67 * hash + Objects.hashCode(this.fipsCode);
+        hash = 67 * hash + Objects.hashCode(this.name);
+        hash = 67 * hash + Objects.hashCode(this.county);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Place other = (Place) obj;
+        if (!Objects.equals(this.fipsCode, other.fipsCode)) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.county, other.county)) {
+            return false;
+        }
+        if (!Objects.equals(this.state, other.state)) {
+            return false;
+        }
+        return true;
     }
 
 }

@@ -16,12 +16,15 @@
  */
 package com.shakhar.census;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 /**
  * US state or territory recognized by the US Census Bureau.
  *
  * @author Shakhar Dasgupta
  */
-public class State {
+public class State implements Serializable {
 
     private final String fipsCode;
     private final String uspsCode;
@@ -71,4 +74,38 @@ public class State {
     public String getName() {
         return name;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.fipsCode);
+        hash = 59 * hash + Objects.hashCode(this.uspsCode);
+        hash = 59 * hash + Objects.hashCode(this.name);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final State other = (State) obj;
+        if (!Objects.equals(this.fipsCode, other.fipsCode)) {
+            return false;
+        }
+        if (!Objects.equals(this.uspsCode, other.uspsCode)) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        return true;
+    }
+
 }
