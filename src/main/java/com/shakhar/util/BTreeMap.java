@@ -26,8 +26,8 @@ import java.util.Set;
 /**
  *
  * @author Shakhar Dasgupta
- * @param <K>
- * @param <V>
+ * @param <K> type of keys
+ * @param <V> type of values
  */
 public class BTreeMap<K extends Comparable<K> & Serializable, V extends Serializable> {
 

@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 /**
  *
  * @author Shakhar Dasgupta
- * @param <E>
+ * @param <E> type of objects stored
  */
 public class Disk<E extends Serializable> {
 
