@@ -47,6 +47,8 @@ public class CensusData {
     private static final int BTREE_DEGREE = 32;
     private static final String STATES_BTREE_NAME = "states";
     private static final String POPULATIONS_BTREE_NAME = "populations";
+    private static final int CLUSTER_COUNT = 8;
+    private static final int MAX_ITERATION_COUNT = 20;
 
     private final HashCache<String, String> cache;
     private BTreeMap<String, State> states;
@@ -245,7 +247,7 @@ public class CensusData {
                 pops.add(p);
             }
         }
-        PopulationClusterer clusterer = new PopulationClusterer(10, 100);
+        PopulationClusterer clusterer = new PopulationClusterer(CLUSTER_COUNT, MAX_ITERATION_COUNT);
         List<Cluster> clusters = clusterer.cluster(pops);
         pops = new ArrayList<>();
         for(Cluster c : clusters) {
@@ -258,10 +260,6 @@ public class CensusData {
             }
         }
         return pops;
-    }
-
-    public List<Population> getPopulations() {
-        return new ArrayList<>(populations.values());
     }
 
 }
