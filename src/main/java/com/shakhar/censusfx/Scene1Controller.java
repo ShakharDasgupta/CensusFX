@@ -81,15 +81,18 @@ public class Scene1Controller implements Initializable {
             return;
         }
         Population similarPlacePopulation;
+        String state;
         if (stateString.equals(ALL_STRING)) {
+            state = null;
             similarPlacePopulation = censusData.getSimilarPopulation(placePopulation, null);
         } else if (censusData.getStateNames().contains(stateString)) {
+            state = stateString;
             similarPlacePopulation = censusData.getSimilarPopulation(placePopulation, stateString);
         } else {
             errorLabel.setText("Invalid State/Territory entered.");
             return;
         }
-        Scene2Controller scene2Controller = new Scene2Controller(stage, placePopulation, similarPlacePopulation);
+        Scene2Controller scene2Controller = new Scene2Controller(stage, censusData, placePopulation, similarPlacePopulation, state);
         FXMLLoader scene2Loader = new FXMLLoader(getClass().getResource("/fxml/Scene2.fxml"));
         scene2Loader.setController(scene2Controller);
         Parent root = scene2Loader.load();

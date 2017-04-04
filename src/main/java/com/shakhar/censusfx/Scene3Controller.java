@@ -16,11 +16,13 @@
  */
 package com.shakhar.censusfx;
 
-import com.shakhar.census.CensusData;
 import com.shakhar.census.Population;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,73 +32,51 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
- * Controller for the second scene.
  *
  * @author Shakhar Dasgupta
  */
-public class Scene2Controller implements Initializable {
-
+public class Scene3Controller implements Initializable {
+    
     private final Stage stage;
-    private final CensusData censusData;
-    private final Population population1;
-    private final Population population2;
-    private final String state;
+    private final List<Population> populations;
 
     @FXML
-    private PieChart place1Chart;
+    private ListView<Population> listView;
     @FXML
-    private PieChart place2Chart;
+    private PieChart chart;
     @FXML
-    private Text place1Text;
+    private Text placeText;
     @FXML
-    private Text county1Text;
+    private Text countyText;
     @FXML
-    private Text state1Text;
-    @FXML
-    private Text place2Text;
-    @FXML
-    private Text county2Text;
-    @FXML
-    private Text state2Text;
+    private Text stateText;
 
-    /**
-     * Constructs <tt>Scene2Controller</tt>.
-     *
-     * @param stage the stage where the second scene has been set
-     * @param censusData the census data
-     * @param population1 first <tt>Population</tt>
-     * @param population2 second <tt>Population</tt>
-     * @param state state to search in
-     */
-    public Scene2Controller(Stage stage, CensusData censusData, Population population1, Population population2, String state) {
+    public Scene3Controller(Stage stage, List<Population> populations) {
         this.stage = stage;
-        this.censusData = censusData;
-        this.population1 = population1;
-        this.population2 = population2;
-        this.state = state;
+        this.populations = populations;
     }
 
-    /**
-     * Initialize values of GUI components
-     *
-     * @param url the location used to resolve relative paths for the root
-     * object
-     * @param rb the resources used to localize the root object
-     */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        place1Text.setText(population1.getPlace().getName());
-        county1Text.setText(population1.getPlace().getCounty());
-        state1Text.setText(population1.getPlace().getState().getName());
-        place2Text.setText(population2.getPlace().getName());
-        county2Text.setText(population2.getPlace().getCounty());
-        state2Text.setText(population2.getPlace().getState().getName());
-        place1Chart.setData(populationToList(population1));
-        place2Chart.setData(populationToList(population2));
+        listView.setItems(FXCollections.observableArrayList(populations));
+        listView.getSelectionModel().selectionModeProperty().setValue(SelectionMode.SINGLE);
+        listView.getSelectionModel().selectedItemProperty().addListener(
+                new ChangeListener<Population>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Population> observable, Population oldValue, Population newValue) {
+                        placeText.setText(newValue.getPlace().getName());
+                        countyText.setText(newValue.getPlace().getCounty());
+                        stateText.setText(newValue.getPlace().getState().getName());
+                        chart.setData(populationToList(newValue));
+                    }
+                }
+        );
     }
 
     @FXML
@@ -108,17 +88,6 @@ public class Scene2Controller implements Initializable {
         Scene scene1 = new Scene(root);
         scene1.getStylesheets().add("/styles/Styles.css");
         stage.setScene(scene1);
-    }
-    
-    @FXML
-    private void handleMore(ActionEvent event) throws IOException {
-        Scene3Controller scene3Controller = new Scene3Controller(stage, censusData.getSimilarPopulations(population1, state));
-        FXMLLoader scene3Loader = new FXMLLoader(getClass().getResource("/fxml/Scene3.fxml"));
-        scene3Loader.setController(scene3Controller);
-        Parent root = scene3Loader.load();
-        Scene scene3 = new Scene(root);
-        scene3.getStylesheets().add("/styles/Styles.css");
-        stage.setScene(scene3);
     }
 
     @FXML
@@ -136,4 +105,5 @@ public class Scene2Controller implements Initializable {
                 new PieChart.Data("Other Races (" + population.getOtherRacesPopulation() + ")", population.getOtherRacesPopulation()),
                 new PieChart.Data("Multi Racials (" + population.getMultiRacialPopulation() + ")", population.getMultiRacialPopulation()));
     }
+    
 }

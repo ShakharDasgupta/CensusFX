@@ -16,6 +16,9 @@
  */
 package com.shakhar.census;
 
+import com.shakhar.clusterer.Cluster;
+import com.shakhar.clusterer.ClusteredPopulation;
+import com.shakhar.clusterer.PopulationClusterer;
 import com.shakhar.util.BTreeMap;
 import com.shakhar.util.HashCache;
 import com.shakhar.util.MyHashMap;
@@ -190,7 +193,22 @@ public class CensusData {
 
     // Returns the euclidean distance between two Population objects. The distance is calculated for every racial category.
     private float euclideanDistance(Population population1, Population population2) {
-        return (float) Math.sqrt(Math.pow(population1.getWhitePopulation() - population2.getWhitePopulation(), 2) + Math.pow(population1.getBlackPopulation() - population2.getBlackPopulation(), 2) + Math.pow(population1.getAmericanIndianAndAlaskaNativePopulation() - population2.getAmericanIndianAndAlaskaNativePopulation(), 2) + Math.pow(population1.getAsianPopulation() - population2.getAsianPopulation(), 2) + Math.pow(population1.getNativeHawaiianAndOtherPacificIslanderPopulation() - population2.getNativeHawaiianAndOtherPacificIslanderPopulation(), 2) + Math.pow(population1.getOtherRacesPopulation() - population2.getOtherRacesPopulation(), 2) + Math.pow(population1.getMultiRacialPopulation() - population2.getMultiRacialPopulation(), 2));
+        float white1Percent = (float) population1.getWhitePopulation() / population1.getTotalPopulation() * 100;
+        float black1Percent = (float) population1.getBlackPopulation() / population1.getTotalPopulation() * 100;
+        float indian1Percent = (float) population1.getAmericanIndianAndAlaskaNativePopulation() / population1.getTotalPopulation() * 100;
+        float asian1Percent = (float) population1.getAsianPopulation() / population1.getTotalPopulation() * 100;
+        float hawaiian1Percent = (float) population1.getNativeHawaiianAndOtherPacificIslanderPopulation() / population1.getTotalPopulation() * 100;
+        float other1Percent = (float) population1.getOtherRacesPopulation() / population1.getTotalPopulation() * 100;
+        float multi1Percent = (float) population1.getMultiRacialPopulation() / population1.getTotalPopulation() * 100;
+        float white2Percent = (float) population2.getWhitePopulation() / population2.getTotalPopulation() * 100;
+        float black2Percent = (float) population2.getBlackPopulation() / population2.getTotalPopulation() * 100;
+        float indian2Percent = (float) population2.getAmericanIndianAndAlaskaNativePopulation() / population2.getTotalPopulation() * 100;
+        float asian2Percent = (float) population2.getAsianPopulation() / population2.getTotalPopulation() * 100;
+        float hawaiian2Percent = (float) population2.getNativeHawaiianAndOtherPacificIslanderPopulation() / population2.getTotalPopulation() * 100;
+        float other2Percent = (float) population2.getOtherRacesPopulation() / population2.getTotalPopulation() * 100;
+        float multi2Percent = (float) population2.getMultiRacialPopulation() / population2.getTotalPopulation() * 100;
+        
+        return (float) Math.sqrt(Math.pow(white1Percent - white2Percent, 2) + Math.pow(black1Percent - black2Percent, 2) + Math.pow(indian1Percent - indian2Percent, 2) + Math.pow(asian1Percent - asian2Percent, 2) + Math.pow(hawaiian1Percent - hawaiian2Percent, 2) + Math.pow(other1Percent - other2Percent, 2) + Math.pow(multi1Percent - multi2Percent, 2));
     }
 
     /**
@@ -217,6 +235,33 @@ public class CensusData {
         }
 
         return similar;
+    }
+    
+    public List<Population> getSimilarPopulations(Population population, String state) {
+        List<Population> pops = new ArrayList<>();
+        pops.add(population);
+        for (Population p : populations.values()) {
+            if (!p.equals(population) && (state == null || p.getPlace().getState().getName().equals(state))) {
+                pops.add(p);
+            }
+        }
+        PopulationClusterer clusterer = new PopulationClusterer(10, 100);
+        List<Cluster> clusters = clusterer.cluster(pops);
+        pops = new ArrayList<>();
+        for(Cluster c : clusters) {
+            if(c.getPopulations().contains(population)) {
+                for(ClusteredPopulation cp : c.getPopulations()) {
+                    if(!population.equals(cp))
+                        pops.add((Population)cp);
+                }
+                break;
+            }
+        }
+        return pops;
+    }
+
+    public List<Population> getPopulations() {
+        return new ArrayList<>(populations.values());
     }
 
 }

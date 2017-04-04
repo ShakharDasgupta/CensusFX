@@ -164,7 +164,7 @@ public class Population implements Serializable {
      */
     @Override
     public String toString() {
-        return "Population{" + "place=" + place + ", totalPopulation=" + totalPopulation + ", whitePopulation=" + whitePopulation + ", blackPopulation=" + blackPopulation + ", americanIndianAndAlaskaNativePopulation=" + americanIndianAndAlaskaNativePopulation + ", asianPopulation=" + asianPopulation + ", nativeHawaiianAndOtherPacificIslanderPopulation=" + nativeHawaiianAndOtherPacificIslanderPopulation + ", otherRacesPopulation=" + otherRacesPopulation + ", multiRacialPopulation=" + multiRacialPopulation + '}';
+        return place.toString();
     }
 
     @Override
@@ -190,7 +190,7 @@ public class Population implements Serializable {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof Population)) {
             return false;
         }
         final Population other = (Population) obj;
